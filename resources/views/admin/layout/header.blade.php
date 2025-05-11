@@ -171,7 +171,7 @@
                 </li>
 
                 <li>
-                    <a href="{{route('admin.change-requests')}}">
+                    <a href="{{route('change_request')}}">
                         <div class="parent-icon"><i class="bi bi-clipboard-check"></i>
                         </div>
                         <div class="menu-title">Change Requests</div>

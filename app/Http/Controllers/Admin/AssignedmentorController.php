@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class AssignedmentorController extends Controller
 {
@@ -34,6 +35,126 @@ class AssignedmentorController extends Controller
         ->get();
 
         return view('admin.view-assign-mentees', ['assignedData' => $assignedData]);
+    }
+
+
+    public function changeRequest(){
+
+        $student = DB::table('assigned_mentor')
+        ->select('users.id')
+        ->join('student_details','assigned_mentor.mentee_id','=','student_details.id')
+        ->join('users','student_details.user_id','=','users.id')
+        ->where('assigned_mentor.mentor_id',Session::get('userid'))->get();
+        // dd($student);
+
+        $ids = $student->pluck('id')->toArray();
+        // dd($ids);
+        $changeRequests = DB::table('student_update_request')
+        ->whereIn('userid', $ids)
+        ->select('student_update_request.*',DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') AS created_at"))
+        ->orderBy('id','desc')
+        ->get();
+        // dd($changeRequests);
+
+        $studentData = DB::table('student_details')
+        ->join('users','student_details.user_id','=','users.id')
+        ->join('department','users.department','=','department.id')
+        ->select('student_details.*', 'users.name','users.email','users.contact','department.department_name')
+        ->whereIn('student_details.user_id', $ids)
+        ->orderBy('student_details.id','desc')
+        ->get();
+
+        // dd($studentData);
+        $mergedData = [];
+
+    foreach ($changeRequests as $request) {
+        $student = $studentData->firstWhere('user_id', $request->userid);
+        if ($student) {
+            $mergedData[] = [
+                'student' => $student,
+                'request' => $request,
+            ];
+        }
+    }
+
+    // dd($mergedData);
+        return view('admin.change-request', ['changeRequests' => $changeRequests, 'mergedData' => $mergedData]);
+    }
+
+
+    public function changeRequestDelete($id){
+        $id = decrypt($id);
+        DB::table('student_update_request')->where('id',$id)->delete();
+        return redirect()->back()->with('success','Request deleted successfully.');
+    }
+
+    public function changeRequestApproval($id){
+
+        return view('admin.change-request-approval',['id' => $id]);
+    }
+
+
+    public function changeRequestApprovalStore(Request $request, $id){
+
+        $id = decrypt($id);
+
+        $request->validate([
+            'status' => 'required|in:0,1,2',
+            'remark' => 'nullable|string|max:255',
+        ]);
+
+        $updateRequest = DB::table('student_update_request')->where('id', $id)->first();
+
+        if (!$updateRequest) {
+            return redirect()->back()->with('error', 'Update request not found.');
+        }
+
+            DB::table('student_update_request')
+            ->where('id', $id)
+            ->update([
+                'status' => $request->status,
+                'remark' => $request->remark,
+                'updated_at' => now()
+            ]);
+
+            if ($request->status == '1') {
+                DB::table('student_details')
+                    ->where('user_id', $updateRequest->userid)
+                    ->update([
+                        'session' => $updateRequest->session,
+                        'aadhaar_no' => $updateRequest->aadhaar_no,
+                        'father_name' => $updateRequest->father_name,
+                        'mother_name' => $updateRequest->mother_name,
+                        'dob' => $updateRequest->dob,
+                        'nationality' => $updateRequest->nationality,
+                        'category' => $updateRequest->category,
+                        'sex' => $updateRequest->sex,
+                        'blood_group' => $updateRequest->blood_group,
+                        'religion' => $updateRequest->religion,
+                        'guardian_name' => $updateRequest->guardian_name,
+                        'guardian_address' => $updateRequest->guardian_address,
+                        'guardian_mobile' => $updateRequest->guardian_mobile,
+                        'relation_with_guardian' => $updateRequest->relation_with_guardian,
+                        'residence_status' => $updateRequest->residence_status,
+                        'student_address' => $updateRequest->student_address,
+                        'state' => $updateRequest->state,
+                        'district' => $updateRequest->district,
+                        'pin' => $updateRequest->pin,
+                        'alternate_mobile' => $updateRequest->alternate_mobile,
+                        'reg_no' => $updateRequest->reg_no,
+                        'roll_no' => $updateRequest->roll_no,
+                        'updated_at' => now(),
+                    ]);
+
+                // Optional: update `users` table (e.g., name)
+                DB::table('users')->where('id', $updateRequest->userid)->update([
+                    'name' => $updateRequest->name,
+                    'contact' => $updateRequest->contact,
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return redirect()->route('change_request')->with('success', 'Change request updated successfully.');
     }
 
 

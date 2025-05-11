@@ -23,11 +23,11 @@
                 <p class="text-muted">Update your personal information</p>
             </div>
             <div class="ms-auto">
-                <a href="{{ route('user.dashboard') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+                <a href="{{ route('user.dashboard') }}" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
             </div>
         </div>
 
-        @if($pendingRequest)
+        {{-- @if($pendingRequest)
         <div class="alert border-0 border-start border-5 border-warning py-2 mb-4">
             <div class="d-flex align-items-center">
                 <div class="font-35 text-warning"><i class="bx bx-time-five"></i></div>
@@ -37,14 +37,14 @@
                 </div>
             </div>
         </div>
-        @endif
+        @endif --}}
 
         @if($errors->any())
         <div class="alert border-0 border-start border-5 border-danger py-2 mb-4">
             <div class="d-flex align-items-center">
                 <div class="font-35 text-danger"><i class="bx bx-error-circle"></i></div>
                 <div class="ms-3">
-                    <h6 class="mb-0 text-danger">Form Errors</h6>
+                    <h6 class="mb-0 text-danger">Form Submission Errors</h6>
                     <ul class="mb-0">
                         @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -55,8 +55,26 @@
         </div>
         @endif
 
+
+        @if(session('success'))
+        <div class="alert border-0 border-start border-5 border-success py-2 mb-4">
+            <div class="d-flex align-items-center">
+                <div class="font-35 text-success"><i class="bx bx-check-circle"></i></div>
+                <div class="ms-3">
+                    <h6 class="mb-0 text-success">Success</h6>
+                    <p class="mb-0">{{ session('success') }}</p>
+                </div>
+            </div>
+        </div>
+        @endif
+
+
+
+
+
+
         <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
                         <h6 class="mb-0">Change Requests History</h6>
@@ -69,23 +87,27 @@
                                 <table class="table table-sm table-borderless mb-0">
                                     <thead>
                                         <tr>
+                                            <th>#</th>
                                             <th>Date</th>
                                             <th>Status</th>
+                                            <th >Remarks</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($changeRequests as $request)
+                                        @foreach($changeRequests as $key => $request)
                                         <tr>
-                                            <td class="text-muted small">{{ $request->created_at->format('d M Y') }}</td>
+                                            <td class="text-muted small">{{$key+1}}</td>
+                                            <td class="text-muted small">{{ $request->created_at }}</td>
                                             <td>
-                                                @if($request->status == 'pending')
+                                                @if($request->status == '0')
                                                 <span class="badge bg-warning">Pending</span>
-                                                @elseif($request->status == 'approved')
+                                                @elseif($request->status == '1')
                                                 <span class="badge bg-success">Approved</span>
-                                                @else
+                                                @elseif($request->status == '2')
                                                 <span class="badge bg-danger">Rejected</span>
                                                 @endif
                                             </td>
+                                            <td class="text-muted small" style="max-width: 150px; white-space: normal; word-wrap: break-word;">{{$request->remark ?? 'N/A'}}</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -132,8 +154,8 @@
 
                                 <div class="col-md-4">
                                     <label for="sex" class="form-label">Gender <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="sex" name="sex" >
-                                        <option value="">Select Gender</option>
+                                    <select class="form-select" id="sex" name="gender">
+                                        <option value="" selected disabled>Select Gender</option>
                                         <option value="Male" >Male</option>
                                         <option value="Female" >Female</option>
                                         <option value="Others" >Other</option>
@@ -212,7 +234,7 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label">Primary Mobile Number</label>
-                                    <input type="text" class="form-control" value="{{ $student->contact ?? '' }}" >
+                                    <input type="text" class="form-control" value="{{ $student->contact ?? '' }}" name="primary_mobile">
                                     <small class="text-muted">Primary contact requires administrator approval for changes.</small>
                                 </div>
 
@@ -230,17 +252,17 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="gurdian_name" class="form-label">Guardian Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="gurdian_name" name="gurdian_name" value="{{ $student->guardian_name ?? ' ' }}" >
+                                    <input type="text" class="form-control" id="gurdian_name" name="guardian_name" value="{{ $student->guardian_name ?? ' ' }}" >
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="guardian_mobile" class="form-label">Guardian Mobile <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="guardian_mobile" name="guardian_mobile" value="{{ old('guardian_mobile', $student->guardian_mobile ?? '') }}" required {{ $pendingRequest ? 'disabled' : '' }}>
+                                    <input type="text" class="form-control" id="guardian_mobile" name="guardian_mobile" value="{{ old('guardian_mobile', $student->guardian_mobile ?? '') }}" >
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="gurdian_address" class="form-label">Guardian Address <span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="gurdian_address" name="gurdian_address" rows="2"  >{{ $student->guardian_address }}</textarea>
+                                    <textarea class="form-control" id="gurdian_address" name="guardian_address" rows="2"  >{{ $student->guardian_address }}</textarea>
                                 </div>
 
 
@@ -268,18 +290,18 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label for="session" class="form-label">Session <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="session" name="session" value="{{ old('session', $student->session ?? '') }}" required {{ $pendingRequest ? 'disabled' : '' }}>
+                                    <input type="text" class="form-control" id="session" name="session" value="{{ old('session', $student->session ?? '') }}" >
                                     <small class="text-muted">Session format should be - 2022-25</small>
                                 </div>
 
                                 <div class="col-md-4">
                                     <label for="reg_no" class="form-label">Registration No <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="reg_no" name="reg_no" value="{{ old('reg_no', $student->reg_no ?? '') }}" required {{ $pendingRequest ? 'disabled' : '' }}>
+                                    <input type="text" class="form-control" id="reg_no" name="reg_no" value="{{ old('reg_no', $student->reg_no ?? '') }}" >
                                 </div>
 
                                 <div class="col-md-4">
                                     <label for="roll_no" class="form-label">Roll No <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="roll_no" name="roll_no" value="{{ old('roll_no', $student->roll_no ?? '') }}" required {{ $pendingRequest ? 'disabled' : '' }}>
+                                    <input type="text" class="form-control" id="roll_no" name="roll_no" value="{{ old('roll_no', $student->roll_no ?? '') }}" >
                                 </div>
 
 
@@ -301,7 +323,7 @@
                         <h6 class="mb-0 text-info">Important Information</h6>
                         <ul class="mb-0">
                             <li>All changes to your profile information require approval from your mentor.</li>
-                            <li>Your profile picture can be changed up to 3 times without approval.</li>
+                            {{-- <li>Your profile picture can be changed up to 3 times without approval.</li> --}}
                             <li>You will be notified when your change request is approved or rejected.</li>
                             <li>For emergency changes, please contact the administrator directly.</li>
                         </ul>
@@ -313,8 +335,8 @@
 
     <div class="row mt-3">
         <div class="col-12 text-end">
-            <button type="submit" class="btn btn-primary px-4" ><i class="bi bi-save"></i> Submit Change Request</button>
-            <a href="{{ route('user.dashboard') }}" class="btn btn-secondary px-4 ms-2"><i class="bi bi-x-circle"></i> Cancel</a>
+            <button type="submit" class="btn btn-primary btn-sm px-4" ><i class="bi bi-save"></i> Submit</button>
+            <a href="{{ route('user.dashboard') }}" class="btn btn-secondary btn-sm px-4 ms-2"><i class="bi bi-x-circle"></i> Cancel</a>
         </div>
     </div>
     </form>

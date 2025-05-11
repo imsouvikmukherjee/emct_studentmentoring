@@ -9,7 +9,7 @@
                 <!-- <div class="breadcrumb-title pe-3">Semister Subjects</div> -->
                 <!--breadcrumb-->
                 <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
-                    <div class="breadcrumb-title pe-3">Add User</div>
+                    <div class="breadcrumb-title pe-3">Change Request Approval</div>
                     <div class="ps-3">
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0 p-0">
@@ -17,9 +17,9 @@
                                 </li>
                                 <!-- <li class="breadcrumb-item " aria-current="page" style="color: #00a8ff; text-decoration: none;"><a href="subjects.html">Semister Subjects</a></li> -->
 
-                                <li class="breadcrumb-item text-primary"><a href="{{route('admin_user')}}">Users</a>
+                                <li class="breadcrumb-item text-primary"><a href="{{route('change_request')}}">Change Request</a>
                                 </li>
-                                <li class="breadcrumb-item active" aria-current="page">Add Users</li>
+                                <li class="breadcrumb-item active" aria-current="page">Change Request Approval</li>
 
                             </ol>
                         </nav>
@@ -59,108 +59,35 @@
                                 </div>
                             @endif
 
-                                <form action="{{route('add_user_store')}}" method="post">
+                                <form action="{{url('/admin/change-request-approval-store')}}/{{$id}}" method="post">
                                     @csrf
 
                                     <div class="row mb-3">
-                                        <label for="inputChoosePassword2" class="col-sm-3 col-form-label">Department<span class="text-danger">*</span></label>
+                                        <label for="inputChoosePassword2" class="col-sm-3 col-form-label">Status<span class="text-danger">*</span></label>
                                         <div class="col-sm-9">
-                                            <select class="form-select mb-3" aria-label="Default select example" name="department">
+                                            <select class="form-select mb-3" aria-label="Default select example" name="status">
                                                 <option selected disabled>Choose</option>
-                                                @foreach($departments as $key => $item)
-                                                <option value="{{$item->id}}" {{old('department') == $item->id?'selected':''}}>{{$item->department_name}}</option>
-                                                @endforeach
+
+                                                <option value="0" {{old('status') == '0' ? 'selected':''}} class="text-warning">Pending</option>
+                                                <option value="1" {{old('status') == '1' ? 'selected':''}} class="text-success">Approve</option>
+                                                <option value="2" {{old('status') == '2' ? 'selected':''}} class="text-danger">Reject</option>
+
 
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="inputEnterYourName" class="col-sm-3 col-form-label">Name<span class="text-danger">*</span></label>
+                                        <label for="inputEnterYourName" class="col-sm-3 col-form-label">Remark <span class="text-muted">(Optional)</span></label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="inputEnterYourName" name="name" value="{{old('name')}}" placeholder="Enter name">
+                                            <input type="text" class="form-control" id="inputEnterYourName" name="remark" value="{{old('remark')}}" placeholder="Enter remark">
                                         </div>
                                     </div>
-
-                                    <div class="row mb-3">
-                                        <label for="inputEmailAddress2" class="col-sm-3 col-form-label">Email<span class="text-danger">*</span></label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="inputEmailAddress2" name="email" value="{{old('email')}}" placeholder="Enter email">
-                                            <!-- <div id="emailHelp" class="form-text">Email should be unique</div> -->
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <label for="inputChoosePassword2" class="col-sm-3 col-form-label">Contact No.<span class="text-danger">*</span></label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="inputChoosePassword2" name="contact" value="{{old('contact')}}" placeholder="Enter contact no.">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="inputChoosePassword" class="col-sm-3 col-form-label">Password<span class="text-danger">*</span></label>
-                                        <div class="col-sm-9">
-                                            <div class="input-group" id="show_hide_password_1">
-                                                <input type="password" class="form-control border-end-0" id="inputChoosePassword" name="password" placeholder="**********">
-                                                <a href="javascript:;" class="input-group-text bg-transparent"><i class='bx bx-hide'></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="inputChoosePassword2" class="col-sm-3 col-form-label">Confirm Password<span class="text-danger">*</span></label>
-                                        <div class="col-sm-9">
-                                            <div class="input-group" id="show_hide_password_2">
-                                                <input type="password" class="form-control border-end-0" id="inputChoosePassword2" name="confirm_password" placeholder="**********">
-                                                <a href="javascript:;" class="input-group-text bg-transparent"><i class='bx bx-hide'></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-
-
-
-                                            {{-- @if(session('usertype' == 'Mentor')) --}}
-                                            <div class="row mb-3">
-                                                <label for="inputChoosePassword2" class="col-sm-3 col-form-label">User Type<span class="text-danger">*</span></label>
-                                                <div class="col-sm-9">
-                                            <select class="form-select mb-3" aria-label="Default select example" name="usertype">
-                                                <option selected disabled>Choose</option>
-
-                                                <option value="Admin" {{old('usertype') == 'Admin'?'selected':''}}>Admin</option>
-                                                <option value="Mentor" {{old('usertype') == 'Mentor'?'selected':''}}>Mentor</option>
-
-
-                                            </select>
-                                            {{-- @elseif(session('usertype' == 'Superadmin'))
-                                            <div class="row mb-3">
-                                                <label for="inputChoosePassword2" class="col-sm-3 col-form-label">User Type<span class="text-danger">*</span></label>
-                                                <div class="col-sm-9">
-                                            <select class="form-select mb-3" aria-label="Default select example" name="usertype">
-                                                <option selected disabled>Choose</option>
-                                            <option value="Admin" {{old('usertype') == 'Admin'?'selected':''}}>Admin</option>
-                                            <option value="Mentor" {{old('usertype') == 'Mentor'?'selected':''}}>Mentor</option>
-                                        </select>
-
-
-                                            @elseif(session('usertype' == 'Admin'))
-                                            <div class="row mb-3">
-                                                <label for="inputChoosePassword2" class="col-sm-3 col-form-label">User Type<span class="text-danger">*</span></label>
-                                                <div class="col-sm-9">
-                                            <select class="form-select mb-3" aria-label="Default select example" name="usertype">
-                                                <option selected disabled>Choose</option>
-                                                <option value="Admin" {{old('usertype') == 'Admin'?'selected':''}}>Admin</option>
-                                            <option value="Mentor" {{old('usertype') == 'Mentor'?'selected':''}}>Mentor</option>
-                                        </select>
-                                            @endif --}}
-                                        </div>
-                                    </div>
-
 
                                     <div class="row">
                                         <label class="col-sm-3 col-form-label"></label>
                                         <div class="col-sm-9">
-                                            <button type="submit" class="btn btn-primary px-4 mt-4 text-white">Save</button>
+                                            <button type="submit" class="btn btn-primary px-4 mt-4 text-white">Update</button>
                                         </div>
                                     </div>
                                 </form>

@@ -56,6 +56,11 @@ Route::post('/admin/assigned-mentees/bulk-delete', [AssignedmentorController::cl
 
 Route::get('/admin/assign-mentees',[AssignedmentorController::class,'viewAssignMentees'])->name('view_assign_mentees');
 
+Route::get('/admin/profile-change-request',[AssignedmentorController::class,'changeRequest'])->name('change_request');
+Route::get('/admin/profile-change-request-delete/{id}',[AssignedmentorController::class,'changeRequestDelete']);
+Route::get('/admin/change-request-approval/{id}',[AssignedmentorController::class,'changeRequestApproval'])->name('change_request_approval');
+Route::post('/admin/change-request-approval-store/{id}',[AssignedmentorController::class,'changeRequestApprovalStore'])->name('change_request_approval_store');
+
 // Change Requests Management
 Route::get('/change-requests', [ChangeRequestController::class, 'index'])->name('admin.change-requests');
 Route::get('/change-requests/{id}', [ChangeRequestController::class, 'show'])->name('admin.change-requests.show');
